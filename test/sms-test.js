@@ -9,7 +9,7 @@ client.messages
   .create({
     body: "🌱 Este es un mensaje de prueba de Orquídea Smart",
     from: process.env.TWILIO_PHONE,
-    to: "+56986308809" // tu número verificado
+    to: "+569XXXXXXX" // tu número verificado
   })
   .then(msg => console.log("✅ SMS enviado:", msg.sid))
   .catch(err => console.error("❌ Error:", err));
