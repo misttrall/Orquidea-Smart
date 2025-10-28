@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orquídea Smart - Monitoreo Ambiental</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- === ENCABEZADO === -->
+  <header>
+    <h1>🌸 Orquídea Smart</h1>
+    <nav>
+      <a href="index.html">Inicio</a>
+      <a href="calendario.html">Calendario de Riego</a>
+    </nav>
+  </header>
+
+  <!-- === SECCIÓN PRINCIPAL === -->
+  <main>
+    <section class="panel">
+      <h2>Panel de Monitoreo</h2>
+      <p>Controla en tiempo real la humedad y temperatura de tu invernadero y gestiona tus riegos de forma automática.</p>
+
+      <!-- Indicadores de datos -->
+      <div class="datos">
+        <div class="card">
+          <h3>Humedad</h3>
+          <p id="humedad">--%</p>
+        </div>
+        <div class="card">
+          <h3>Temperatura</h3>
+          <p id="temperatura">--°C</p>
+        </div>
+      </div>
+
+      <!-- Botón para activar riego manual -->
+      <button id="btnRegar">💧 Regar planta</button>
+
+      <!-- Estado de sensores -->
+      <div class="estado">
+        <h4>Estado de Sensores</h4>
+        <p id="estadoSensores">Conectando...</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- === PIE DE PÁGINA === -->
+  <footer>
+    <p>© 2025 Orquídea Smart | Proyecto Integración de Competencias II</p>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

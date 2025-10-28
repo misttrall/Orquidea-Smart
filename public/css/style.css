@@ -1,0 +1,172 @@
+/* === Estilos generales === */
+* {
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+body {
+  margin: 0;
+  background-color: #f7fff7;
+  color: #222;
+}
+
+/* === Encabezado y navegación === */
+header {
+  background-color: #2e8b57;
+  color: white;
+  padding: 1rem;
+  text-align: center;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+nav {
+  margin-top: 0.5rem;
+}
+
+nav a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  margin: 0 1rem;
+  transition: color 0.2s ease-in;
+}
+
+nav a:hover {
+  color: #c4f0c4;
+}
+
+/* === Panel principal === */
+.panel {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+  padding: 2rem;
+  margin: 2rem auto;
+  width: 85%;
+  max-width: 700px;
+  text-align: center;
+}
+
+.panel h2 {
+  color: #2e8b57;
+  margin-bottom: 1.5rem;
+}
+
+/* === Tarjetas de datos === */
+.datos {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.card {
+  background: #e8ffe8;
+  border-radius: 10px;
+  padding: 1rem;
+  width: 45%;
+  min-width: 180px;
+  transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+  transform: scale(1.03);
+}
+
+.card h3 {
+  color: #276b47;
+  margin-bottom: 0.5rem;
+}
+
+.card p {
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+
+/* === Botones === */
+button {
+  background-color: #2e8b57;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.7rem 1.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: background 0.2s;
+}
+
+button:hover {
+  background-color: #256b47;
+}
+
+/* === Formularios === */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  text-align: left;
+  width: 90%;
+  margin: 0 auto;
+}
+
+label {
+  font-weight: bold;
+  color: #2e8b57;
+}
+
+input {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  outline: none;
+  transition: border 0.2s;
+}
+
+input:focus {
+  border-color: #2e8b57;
+}
+
+/* === Lista de riegos programados === */
+#listaRiegos {
+  margin-top: 1.5rem;
+  background: #f1fff1;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+#listaRiegos p {
+  background: #eaffea;
+  margin: 0.3rem 0;
+  padding: 0.5rem;
+  border-radius: 6px;
+  border-left: 4px solid #2e8b57;
+}
+
+/* === Estados del sistema === */
+.estado {
+  margin-top: 1rem;
+  background: #f1fff1;
+  border-radius: 10px;
+  padding: 1rem;
+}
+
+.estado h4 {
+  color: #2e8b57;
+  margin-top: 0;
+}
+
+/* === Footer (si agregas más adelante) === */
+footer {
+  background-color: #2e8b57;
+  color: white;
+  text-align: center;
+  padding: 1rem;
+  margin-top: 2rem;
+  border-top: 3px solid #256b47;
+}

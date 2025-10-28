@@ -7,30 +7,53 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<header>
-  <h1>📅 Calendario de Riego</h1>
-  <nav><a href="index.html">Volver</a></nav>
-</header>
 
-<main>
-  <section class="panel">
-    <h2>Programar Riego</h2>
-    <form id="formRiego">
-      <label>Fecha:</label>
-      <input type="date" id="fecha" required>
-      <label>Hora:</label>
-      <input type="time" id="hora" required>
-      <label>Correo (opcional):</label>
-      <input type="email" id="correo" placeholder="correo@ejemplo.com">
-      <label>Teléfono (opcional, formato internacional):</label>
-      <input type="tel" id="telefono" placeholder="+569XXXXXXXX">
-      <button type="submit">Guardar</button>
-    </form>
-    <div id="listaRiegos"></div>
-  </section>
-</main>
+  <!-- === ENCABEZADO === -->
+  <header>
+    <h1>📅 Calendario de Riego</h1>
+    <nav>
+      <a href="index.html">Volver al Inicio</a>
+    </nav>
+  </header>
 
-<script src="js/observer.js"></script>
-<script src="js/main.js"></script>
+  <!-- === SECCIÓN PRINCIPAL === -->
+  <main>
+    <section class="panel">
+      <h2>Programar un nuevo riego</h2>
+      <p>Selecciona la fecha, hora y el método de notificación para recibir recordatorios de riego.</p>
+
+      <!-- Formulario de programación -->
+      <form id="formRiego">
+        <label for="fecha">Fecha de riego:</label>
+        <input type="date" id="fecha" required>
+
+        <label for="hora">Hora de riego:</label>
+        <input type="time" id="hora" required>
+
+        <label for="correo">Correo electrónico (opcional):</label>
+        <input type="email" id="correo" placeholder="ejemplo@correo.com">
+
+        <label for="telefono">Teléfono (opcional, formato internacional):</label>
+        <input type="tel" id="telefono" placeholder="+569XXXXXXXX">
+
+        <button type="submit">💧 Guardar riego</button>
+      </form>
+
+      <!-- Lista de riegos programados -->
+      <div id="listaRiegos">
+        <h3>Riegos Programados</h3>
+        <p>No hay riegos registrados aún.</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- === PIE DE PÁGINA === -->
+  <footer>
+    <p>© 2025 Orquídea Smart | Proyecto Integración de Competencias II</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/observer.js"></script>
+  <script src="js/main.js"></script>
 </body>
 </html>
