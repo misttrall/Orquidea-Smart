@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Orquídea Smart - Monitoreo Ambiental</title>
-  <link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Orquídea Smart 🌸</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
-  <!-- === ENCABEZADO === -->
   <header>
     <h1>🌸 Orquídea Smart</h1>
     <nav>
@@ -17,40 +17,58 @@
     </nav>
   </header>
 
-  <!-- === SECCIÓN PRINCIPAL === -->
   <main>
     <section class="panel">
-      <h2>Panel de Monitoreo</h2>
-      <p>Controla en tiempo real la humedad y temperatura de tu invernadero y gestiona tus riegos de forma automática.</p>
+      <h2>Monitoreo en tiempo real - Orquídea Aurora</h2>
+      <p>Simulación ambiental inteligente con alertas automáticas y notificaciones.</p>
 
-      <!-- Indicadores de datos -->
       <div class="datos">
         <div class="card">
           <h3>Humedad</h3>
-          <p id="humedad">--%</p>
+          <p id="humedad" class="valor">--%</p>
+          <small id="estadoHumedad">Conectando...</small>
         </div>
+
         <div class="card">
           <h3>Temperatura</h3>
-          <p id="temperatura">--°C</p>
+          <p id="temperatura" class="valor">--°C</p>
+          <small id="estadoTemperatura">Conectando...</small>
         </div>
       </div>
 
-      <!-- Botón para activar riego manual -->
-      <button id="btnRegar">💧 Regar planta</button>
+      <canvas id="grafico" width="600" height="250"></canvas>
 
-      <!-- Estado de sensores -->
-      <div class="estado">
-        <h4>Estado de Sensores</h4>
-        <p id="estadoSensores">Conectando...</p>
+      <div class="acciones">
+        <button id="btnRegar">💧 Regar planta</button>
       </div>
+
+      <div class="estado">
+        <h4>Estado general</h4>
+        <p id="estadoSensores">Esperando lectura de sensores...</p>
+      </div>
+
+      <div class="notificaciones">
+        <h4>Activar notificaciones</h4>
+        <form id="formNotificacion">
+          <label for="correo">Correo:</label>
+          <input type="email" id="correo" placeholder="ejemplo@gmail.com" />
+
+          <label for="telefono">Teléfono:</label>
+          <input type="tel" id="telefono" placeholder="+56 9 1234 5678" />
+
+          <button type="submit">Activar notificaciones</button>
+        </form>
+      </div>
+
     </section>
   </main>
 
-  <!-- === PIE DE PÁGINA === -->
   <footer>
     <p>© 2025 Orquídea Smart | Proyecto Integración de Competencias II</p>
   </footer>
-
+  
+  <script src="js/observer.js"></script>
   <script src="js/main.js"></script>
+
 </body>
 </html>

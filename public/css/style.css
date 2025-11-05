@@ -1,4 +1,3 @@
-/* === Estilos generales === */
 * {
   box-sizing: border-box;
   font-family: 'Segoe UI', sans-serif;
@@ -10,7 +9,6 @@ body {
   color: #222;
 }
 
-/* === Encabezado y navegación === */
 header {
   background-color: #2e8b57;
   color: white;
@@ -39,7 +37,6 @@ nav a:hover {
   color: #c4f0c4;
 }
 
-/* === Panel principal === */
 .panel {
   background: white;
   border-radius: 12px;
@@ -56,7 +53,6 @@ nav a:hover {
   margin-bottom: 1.5rem;
 }
 
-/* === Tarjetas de datos === */
 .datos {
   display: flex;
   justify-content: space-around;
@@ -88,7 +84,6 @@ nav a:hover {
   font-weight: bold;
 }
 
-/* === Botones === */
 button {
   background-color: #2e8b57;
   color: white;
@@ -105,7 +100,6 @@ button:hover {
   background-color: #256b47;
 }
 
-/* === Formularios === */
 form {
   display: flex;
   flex-direction: column;
@@ -132,7 +126,6 @@ input:focus {
   border-color: #2e8b57;
 }
 
-/* === Lista de riegos programados === */
 #listaRiegos {
   margin-top: 1.5rem;
   background: #f1fff1;
@@ -148,7 +141,6 @@ input:focus {
   border-left: 4px solid #2e8b57;
 }
 
-/* === Estados del sistema === */
 .estado {
   margin-top: 1rem;
   background: #f1fff1;
@@ -161,7 +153,6 @@ input:focus {
   margin-top: 0;
 }
 
-/* === Footer (si agregas más adelante) === */
 footer {
   background-color: #2e8b57;
   color: white;
@@ -170,3 +161,25 @@ footer {
   margin-top: 2rem;
   border-top: 3px solid #256b47;
 }
+
+@keyframes parpadeoRojo {
+  0%, 100% { box-shadow: 0 0 15px 5px rgba(255, 0, 0, 0.6); }
+  50% { box-shadow: 0 0 25px 10px rgba(255, 0, 0, 0.9); }
+}
+@keyframes parpadeoAzul {
+  0%, 100% { box-shadow: 0 0 15px 5px rgba(0, 128, 255, 0.6); }
+  50% { box-shadow: 0 0 25px 10px rgba(0, 128, 255, 0.9); }
+}
+@keyframes parpadeoAmarillo {
+  0%, 100% { box-shadow: 0 0 15px 5px rgba(255, 200, 0, 0.6); }
+  50% { box-shadow: 0 0 25px 10px rgba(255, 200, 0, 0.9); }
+}
+@keyframes parpadeoMarron {
+  0%, 100% { box-shadow: 0 0 15px 5px rgba(139, 69, 19, 0.6); }
+  50% { box-shadow: 0 0 25px 10px rgba(139, 69, 19, 0.9); }
+}
+
+.alerta-parpadeo-roja { animation: parpadeoRojo 1s infinite; border: 2px solid #ff4d4d; }
+.alerta-parpadeo-azul { animation: parpadeoAzul 1s infinite; border: 2px solid #3399ff; }
+.alerta-parpadeo-amarilla { animation: parpadeoAmarillo 1s infinite; border: 2px solid #ffbf00; }
+.alerta-parpadeo-marron { animation: parpadeoMarron 1s infinite; border: 2px solid #b5651d; }

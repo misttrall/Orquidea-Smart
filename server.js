@@ -11,46 +11,45 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static("public"));
 
-// --- CONFIGURACIONES ---
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  }
-});
-
 const twilioClient = twilio(process.env.TWILIO_SID, process.env.TWILIO_TOKEN);
 
-// --- RUTAS ---
+// Enviar correo o SMS según disponibilidad
 app.post("/api/notificar", async (req, res) => {
-  const { correo, telefono, mensaje, tipo } = req.body;
+  const { correo, telefono, mensaje } = req.body;
 
   try {
-    if (tipo === "correo") {
+    // Si hay correo, enviar email
+    if (correo) {
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS
+        }
+      });
+
       await transporter.sendMail({
-        from: `Orquídea Smart <${process.env.EMAIL_USER}>`,
+        from: "Orquídea Smart <orquidea.smart@notificaciones.com>",
         to: correo,
-        subject: "🌿 Recordatorio de Riego - Orquídea Smart",
+        subject: "🌿 Alerta de Monitoreo - Orquídea Smart",
         text: mensaje
       });
       console.log(`Correo enviado a ${correo}`);
-      return res.json({ ok: true, msg: "Correo enviado correctamente" });
     }
 
-    if (tipo === "sms") {
+    // Si hay teléfono, enviar SMS
+    if (telefono) {
       await twilioClient.messages.create({
         body: mensaje,
         from: process.env.TWILIO_PHONE,
         to: telefono
       });
       console.log(`SMS enviado a ${telefono}`);
-      return res.json({ ok: true, msg: "SMS enviado correctamente" });
     }
 
-    res.status(400).json({ ok: false, msg: "Tipo de notificación inválido" });
+    res.json({ ok: true, msg: "Notificación enviada correctamente" });
   } catch (error) {
-    console.error("❌ Error enviando notificación:", error);
+    console.error("Error al enviar notificación:", error);
     res.status(500).json({ ok: false, msg: "Error al enviar notificación" });
   }
 });
