@@ -1,0 +1,9 @@
+CREATE DATABASE IF NOT EXISTS orquidea_smart;
+USE orquidea_smart;
+
+CREATE TABLE IF NOT EXISTS registros (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    temperatura DECIMAL(5,2) NOT NULL,
+    humedad DECIMAL(5,2) NOT NULL,
+    fecha_hora DATETIME DEFAULT CURRENT_TIMESTAMP
+);

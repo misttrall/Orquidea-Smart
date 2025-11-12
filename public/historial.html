@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Historial de Lecturas | Orquídea Smart 🌸</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <header>
+    <h1>🌸 Orquídea Smart</h1>
+    <nav>
+      <a href="index.html">Inicio</a>
+      <a href="calendario.html">Calendario de Riego</a>
+      <a class="activo" href="historial.html">Historial</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="panel">
+      <h2>📊 Historial de Lecturas</h2>
+      <p>Registros almacenados automáticamente desde el sistema.</p>
+
+      <div class="tabla-container">
+        <table id="tablaLecturas">
+          <thead>
+            <tr>
+              <th>Fecha y Hora</th>
+              <th>Temperatura (°C)</th>
+              <th>Humedad (%)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="3">Cargando datos...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="grafico-container">
+        <canvas id="graficoHistorial"></canvas>
+      </div>
+
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2025 Orquídea Smart | Proyecto Integración de Competencias II</p>
+  </footer>
+
+  <script src="js/historial.js"></script>
+</body>
+</html>
