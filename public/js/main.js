@@ -1,14 +1,27 @@
-const socket = io();
+// ======================================================
+// ===============  ELEMENTOS DEL DOM  ==================
+// ======================================================
 const humedadElem = document.getElementById("humedad");
 const tempElem = document.getElementById("temperatura");
-const luzElem = document.getElementById("luminosidad");
-const estadoSensores = document.getElementById("estadoSensores");
+
 const estadoHumedad = document.getElementById("estadoHumedad");
 const estadoTemperatura = document.getElementById("estadoTemperatura");
-const estadoLuz = document.getElementById("estadoLuz");
-const panel = document.querySelector(".panel");
+const estadoSensores = document.getElementById("estadoSensores");
 
-// === Gráfico con Chart.js ===
+const panel = document.querySelector(".panel");
+const listaRiegos = document.getElementById("listaRiegos");
+
+// ======================================================
+// =====================  SOCKET.IO  =====================
+// ======================================================
+const socket = io();
+
+// Variable para mantener el estado actual
+let lecturaActual = { humedad: 50, temperatura: 22 };
+
+// ======================================================
+// =======================  GRÁFICO ======================
+// ======================================================
 const ctx = document.getElementById("grafico");
 const grafico = new Chart(ctx, {
   type: "line",
@@ -16,80 +29,149 @@ const grafico = new Chart(ctx, {
     labels: [],
     datasets: [
       { label: "Humedad (%)", data: [], borderColor: "#2e8b57", tension: 0.3 },
-      { label: "Temperatura (°C)", data: [], borderColor: "#ff704d", tension: 0.3 },
-      { label: "Luz (lx)", data: [], borderColor: "#ffcc00", tension: 0.3 },
+      { label: "Temperatura (°C)", data: [], borderColor: "#ff704d", tension: 0.3 }
     ],
   },
-  options: { scales: { x: { ticks: { display: false } }, y: { beginAtZero: false } } },
+  options: {
+    responsive: true,
+    scales: {
+      x: { ticks: { display: false } },
+      y: { beginAtZero: false },
+    },
+  },
 });
 
-// === Lectura en tiempo real desde Arduino vía Socket.IO ===
-socket.on("lecturaArduino", (lectura) => {
-  const { humedad, temperatura, luminosidad } = lectura;
+// ======================================================
+// ========== FUNCIONES AUXILIARES =====================
+// ======================================================
+function actualizarUI() {
+  if (humedadElem) humedadElem.textContent = `${lecturaActual.humedad.toFixed(1)}%`;
+  if (tempElem) tempElem.textContent = `${lecturaActual.temperatura.toFixed(1)}°C`;
+}
 
-  // Mostrar valores en la interfaz
-  humedadElem.textContent = `${humedad}%`;
-  tempElem.textContent = `${temperatura.toFixed(1)}°C`;
-  luzElem.textContent = `${luminosidad} lx`;
+function actualizarEstado(h, t) {
+  if (estadoSensores) estadoSensores.textContent = "Datos recibidos 🌍";
 
-  actualizarGrafico(humedad, temperatura, luminosidad);
-  actualizarEstado(humedad, temperatura, luminosidad);
-});
+  if (estadoHumedad) {
+    if (h < 55) estadoHumedad.textContent = "Humedad baja ❌";
+    else if (h > 90) estadoHumedad.textContent = "Humedad alta ⚠";
+    else estadoHumedad.textContent = "Humedad ideal ✅";
+  }
 
-// === Botón de riego ===
-document.getElementById("btnRegar").addEventListener("click", () => {
-  socket.emit("regar");
-  estadoSensores.textContent = "💧 Riego activado desde la aplicación.";
-  panel.classList.add("estabilizando");
-  setTimeout(() => panel.classList.remove("estabilizando"), 5000);
-});
+  if (estadoTemperatura) {
+    if (t < 18) estadoTemperatura.textContent = "Temperatura baja ❄";
+    else if (t > 28) estadoTemperatura.textContent = "Temperatura alta ☀";
+    else estadoTemperatura.textContent = "Temperatura ideal ✅";
+  }
+}
 
-// === Funciones auxiliares ===
-function actualizarGrafico(h, t, l) {
+function actualizarGrafico(h, t) {
   const hora = new Date().toLocaleTimeString();
   const data = grafico.data;
+
   if (data.labels.length >= 25) {
     data.labels.shift();
     data.datasets.forEach(ds => ds.data.shift());
   }
+
   data.labels.push(hora);
   data.datasets[0].data.push(h);
   data.datasets[1].data.push(t);
-  data.datasets[2].data.push(l);
   grafico.update();
 }
 
-function actualizarEstado(h, t, l) {
-  estadoSensores.textContent = "Lectura recibida desde Arduino ✅";
-  estadoSensores.style.color = "#2e8b57";
+function agregarRegistroHistorial(registro) {
+  if (!listaRiegos) return;
 
-  if (h < 55) estadoHumedad.textContent = "Humedad baja ❌";
-  else if (h > 90) estadoHumedad.textContent = "Humedad alta ⚠";
-  else estadoHumedad.textContent = "Humedad ideal ✅";
+  const p = document.createElement("p");
+  const fecha = new Date(registro.fecha || Date.now()).toLocaleString();
+  p.textContent = `[${fecha}] ${registro.evento} - Humedad: ${registro.humedad.toFixed(1)}%, Temp: ${registro.temperatura.toFixed(1)}°C`;
 
-  if (t < 18) estadoTemperatura.textContent = "Temperatura baja ❄";
-  else if (t > 28) estadoTemperatura.textContent = "Temperatura alta ☀";
-  else estadoTemperatura.textContent = "Temperatura ideal ✅";
-
-  if (l < 20000) estadoLuz.textContent = "Poca luz 🌑";
-  else if (l > 80000) estadoLuz.textContent = "Exceso de luz ☀";
-  else estadoLuz.textContent = "Luz adecuada 🌿";
+  listaRiegos.prepend(p);
 }
 
-// === Obtener historial desde Node.js (cada 10 segundos) ===
-async function obtenerLecturas() {
-  try {
-    const res = await fetch("http://localhost:3000/api/registros");
-    const datos = await res.json();
+// ======================================================
+// ==================  SOCKET.IO ========================
+// ======================================================
+socket.on("lecturaClima", (clima) => {
+  lecturaActual.humedad = clima.humedad;
+  lecturaActual.temperatura = clima.temperatura;
 
-    if (Array.isArray(datos) && datos.length > 0) {
-      console.log("📊 Lecturas históricas:", datos.slice(0, 5)); // muestra solo 5 últimas
+  actualizarUI();
+  actualizarGrafico(lecturaActual.humedad, lecturaActual.temperatura);
+  actualizarEstado(lecturaActual.humedad, lecturaActual.temperatura);
+});
+
+socket.on("nuevoRegistroCliente", (registro) => {
+  lecturaActual.humedad = registro.humedad;
+  lecturaActual.temperatura = registro.temperatura;
+
+  actualizarUI();
+  actualizarGrafico(lecturaActual.humedad, lecturaActual.temperatura);
+  actualizarEstado(lecturaActual.humedad, lecturaActual.temperatura);
+
+  agregarRegistroHistorial(registro);
+});
+
+// ======================================================
+// ==================  RIEGO MANUAL =====================
+// ======================================================
+const btnRegar = document.getElementById("btnRegar");
+if (btnRegar) {
+  btnRegar.addEventListener("click", async () => {
+    socket.emit("regarPlanta");
+
+    // Animación de riego: humedad sube, temperatura baja a 14°C
+    const pasos = 10;
+    const tempObjetivo = 14;
+    const humObjetivo = Math.min(lecturaActual.humedad + 30, 100);
+
+    for (let i = 0; i < pasos; i++) {
+      lecturaActual.humedad += (humObjetivo - lecturaActual.humedad)/(pasos - i);
+      lecturaActual.temperatura -= (lecturaActual.temperatura - tempObjetivo)/(pasos - i);
+
+      if (lecturaActual.humedad > 100) lecturaActual.humedad = 100;
+
+      actualizarUI();
+      actualizarGrafico(lecturaActual.humedad, lecturaActual.temperatura);
+      actualizarEstado(lecturaActual.humedad, lecturaActual.temperatura);
+
+      await new Promise(r => setTimeout(r, 300));
     }
+  });
+}
 
+// ======================================================
+// ======= EVAPORACIÓN DE HUMEDAD ======================
+// ======================================================
+const tasaEvaporacion = 0.5; // 0.5% cada ciclo
+const intervaloEvaporacion = 10000; // cada 10s
+
+setInterval(() => {
+  lecturaActual.humedad -= tasaEvaporacion;
+  if (lecturaActual.humedad < 0) lecturaActual.humedad = 0;
+
+  actualizarUI();
+  actualizarGrafico(lecturaActual.humedad, lecturaActual.temperatura);
+  actualizarEstado(lecturaActual.humedad, lecturaActual.temperatura);
+}, intervaloEvaporacion);
+
+// ======================================================
+// ======= CARGAR HISTORIAL AL INICIAR =================
+// ======================================================
+async function cargarHistorial() {
+  try {
+    const res = await fetch("/api/registros");
+    const datos = await res.json();
+    if (listaRiegos) {
+      listaRiegos.innerHTML = "";
+      datos.slice(-20).reverse().forEach(registro => {
+        agregarRegistroHistorial(registro);
+      });
+    }
   } catch (error) {
-    console.error("⚠️ Error al obtener lecturas:", error);
+    console.error("Error cargando historial:", error);
   }
 }
 
-// Ejecutar cada 10 segundos
-setInterval(obtenerLecturas, 10000);
+cargarHistorial();

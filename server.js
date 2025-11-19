@@ -1,114 +1,179 @@
 import express from "express";
-import { Server } from "socket.io";
+import mysql from "mysql2/promise";
+import path from "path";
+import { fileURLToPath } from "url";
 import http from "http";
-import cors from "cors";
-import dotenv from "dotenv";
-import mysql from "mysql2";
-// import { SerialPort, ReadlineParser } from "serialport"; // 🔄 Descomenta cuando uses el Arduino
+import { Server } from "socket.io";
+import axios from "axios";
 
-dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: "*" } });
+const io = new Server(server);
 
-app.use(cors());
 app.use(express.json());
-app.use(express.static("public")); // carpeta del frontend
+app.use(express.static(path.join(__dirname, "public")));
 
-/* 🔹 CONEXIÓN A MARIADB (XAMPP) */
-const db = mysql.createConnection({
+// ==========================
+// Conexión a MySQL
+// ==========================
+const pool = mysql.createPool({
   host: "localhost",
   user: "root",
   password: "",
   database: "orquidea_smart",
-  port: 3306
 });
 
-db.connect(err => {
-  if (err) {
-    console.error("❌ Error conectando a MariaDB:", err);
-  } else {
-    console.log("✅ Conectado a la base de datos orquidea_smart");
-  }
-});
-
-/* =====================================================
-   🧠 MODO SIMULADOR (sin Arduino)
-   ===================================================== */
-console.log("⚙️ Modo simulador activo: generando datos falsos cada 3s...");
-
-setInterval(() => {
-  const lectura = {
-    humedad: Math.floor(Math.random() * 50) + 50,      // 50–100 %
-    temperatura: (Math.random() * 10 + 20).toFixed(1), // 20–30 °C
-    luminosidad: Math.floor(Math.random() * 60000) + 20000 // 20k–80k lx
-  };
-
-  // Enviar al frontend
-  io.emit("lecturaArduino", lectura);
-  console.log("📡 Datos simulados:", lectura);
-
-  // Guardar en la base de datos
-  const sql = "INSERT INTO registros (temperatura, humedad, fecha_hora) VALUES (?, ?, NOW())";
-  db.query(sql, [lectura.temperatura, lectura.humedad], (err) => {
-    if (err) console.error("❌ Error al insertar registro:", err);
-    else console.log("💾 Registro simulado guardado en BD");
-  });
-
-}, 3000);
-
-/* =====================================================
-   🔄 MODO ARDUINO (descomentar al usar el dispositivo)
-   ===================================================== */
-
-/*
-const portArduino = new SerialPort({
-  path: "COM10", // ⚠️ cambia al puerto correcto (ej: COM5 o /dev/ttyUSB0)
-  baudRate: 9600,
-});
-const parser = portArduino.pipe(new ReadlineParser({ delimiter: "\n" }));
-
-parser.on("data", (data) => {
+// ==========================
+// Inicializar tablas
+// ==========================
+async function inicializarTablas() {
   try {
-    const lectura = JSON.parse(data.trim());
-    const { temperatura, humedad, luminosidad } = lectura;
-
-    console.log("📡 Datos desde Arduino:", lectura);
-
-    // Enviar al frontend
-    io.emit("lecturaArduino", lectura);
-
-    // Guardar en la base de datos
-    const sql = "INSERT INTO registros (temperatura, humedad, fecha_hora) VALUES (?, ?, NOW())";
-    db.query(sql, [temperatura, humedad], (err) => {
-      if (err) console.error("❌ Error al insertar registro:", err);
-      else console.log("💾 Registro real guardado en BD");
-    });
-
-  } catch (err) {
-    console.log("⚠️ Error procesando JSON:", data);
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS riegos (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        evento VARCHAR(50) NOT NULL,
+        valor FLOAT NOT NULL,
+        temperatura FLOAT NOT NULL,
+        humedad FLOAT NOT NULL,
+        fecha_hora DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log("✅ Tablas inicializadas correctamente");
+  } catch (error) {
+    console.error("❌ Error inicializando tablas:", error);
   }
-});
-*/
+}
+await inicializarTablas();
 
-/* =====================================================
-   🔹 RUTA API: obtener historial de registros
-   ===================================================== */
-app.get("/api/registros", (req, res) => {
-  const sql = "SELECT * FROM registros ORDER BY fecha_hora DESC";
-  db.query(sql, (err, results) => {
-    if (err) {
-      console.error("❌ Error al obtener registros:", err);
-      res.status(500).send("Error en el servidor");
-    } else {
-      res.json(results);
+// ==========================
+// Variables simuladas
+// ==========================
+let temperatura = 20; // valor inicial aproximado
+let humedad = 50;     // valor inicial aproximado
+
+// ==========================
+// Función para emitir y guardar registro
+// ==========================
+async function crearRegistro(evento, valor, temp, hum) {
+  const [result] = await pool.query(
+    "INSERT INTO riegos (evento, valor, temperatura, humedad) VALUES (?, ?, ?, ?)",
+    [evento, valor, temp, hum]
+  );
+
+  const [rows] = await pool.query(
+    "SELECT * FROM riegos WHERE id = ?",
+    [result.insertId]
+  );
+
+  const registro = rows[0];
+  io.emit("nuevoRegistroCliente", registro);
+}
+
+// ==========================
+// Función para obtener datos de Open-Meteo
+// ==========================
+async function obtenerDatosClima() {
+  try {
+    const lat = -34.4063;
+    const lon = -70.8583;
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=relative_humidity_2m`;
+
+    const { data } = await axios.get(url);
+    if (!data || !data.current_weather) return null;
+
+    // Ajuste: temperatura de Open-Meteo
+    temperatura = data.current_weather.temperature;
+    // Simulación simple: humedad base + un valor aleatorio
+    humedad = 50 + Math.random() * 10;
+
+    return { temperatura, humedad };
+  } catch (error) {
+    console.error("❌ Error obteniendo clima:", error);
+    return null;
+  }
+}
+
+// ==========================
+// Lectura automática cada 50s
+// ==========================
+setInterval(async () => {
+  const clima = await obtenerDatosClima();
+  if (!clima) return;
+
+  temperatura = clima.temperatura;
+  humedad = clima.humedad;
+
+  await crearRegistro("Lectura automática", 0, temperatura, humedad);
+}, 10000);
+
+// ==========================
+// WebSocket para riego manual
+// ==========================
+io.on("connection", (socket) => {
+  console.log("🔌 Cliente conectado");
+
+  socket.on("regarPlanta", async () => {
+    console.log("💧 Riego manual solicitado");
+
+    const pasos = 10;
+    const tempObjetivo = 14;          // temperatura baja a ~14°C
+    const humObjetivo = Math.min(humedad + 30, 100); // humedad sube
+
+    for (let i = 0; i < pasos; i++) {
+      humedad += (humObjetivo - humedad)/(pasos - i);
+      temperatura -= (temperatura - tempObjetivo)/(pasos - i);
+      if (humedad > 100) humedad = 100;
+      if (temperatura < 14) temperatura = 14;
+
+      // Emitir a todos los clientes los cambios de humedad y temperatura
+      io.emit("lecturaClima", { temperatura, humedad });
+
+      await crearRegistro("Riego manual", 0, temperatura, humedad);
+      await new Promise(r => setTimeout(r, 300));
+    }
+
+    // Gradualmente vuelve a valores de Open-Meteo
+    for (let i = 0; i < pasos; i++) {
+      const clima = await obtenerDatosClima();
+      if (!clima) continue;
+
+      temperatura += (clima.temperatura - temperatura)/(pasos - i);
+      humedad += (clima.humedad - humedad)/(pasos - i);
+
+      io.emit("lecturaClima", { temperatura, humedad });
+      await crearRegistro("Riego manual recuperación", 0, temperatura, humedad);
+      await new Promise(r => setTimeout(r, 300));
     }
   });
+
+  socket.on("disconnect", () => console.log("🔌 Cliente desconectado"));
 });
 
-/* =====================================================
-   🚀 INICIO DEL SERVIDOR
-   ===================================================== */
+// ==========================
+// API: Listar registros
+// ==========================
+app.get("/api/registros", async (req, res) => {
+  try {
+    const [rows] = await pool.query("SELECT * FROM riegos ORDER BY id DESC");
+    res.json(rows);
+  } catch (error) {
+    console.error("❌ Error obteniendo registros:", error);
+    res.status(500).json({ error: "Error al obtener registros" });
+  }
+});
+
+// ==========================
+// Servir index
+// ==========================
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+// ==========================
+// Iniciar servidor
+// ==========================
 const PORT = 3000;
-server.listen(PORT, () => console.log(`🌸 Orquídea Smart corriendo en http://localhost:${PORT}`));
+server.listen(PORT, () => console.log(`🚀 Servidor iniciado en http://localhost:${PORT}`));

@@ -1,54 +1,48 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Historial de Lecturas | Orquídea Smart 🌸</title>
-  <link rel="stylesheet" href="css/style.css" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta charset="UTF-8">
+  <title>Historial de Riegos</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
+  <h1>📄 Historial de Riegos</h1>
+  <a href="index.html" class="btn-volver">⬅ Volver</a>
 
-  <header>
-    <h1>🌸 Orquídea Smart</h1>
-    <nav>
-      <a href="index.html">Inicio</a>
-      <a href="calendario.html">Calendario de Riego</a>
-      <a class="activo" href="historial.html">Historial</a>
-    </nav>
-  </header>
+  <table id="tabla-historial">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Evento</th>
+        <th>Valor</th>
+        <th>Temperatura</th>
+        <th>Humedad</th>
+        <th>Fecha/Hora</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Filas se agregan dinámicamente -->
+    </tbody>
+  </table>
 
-  <main>
-    <section class="panel">
-      <h2>📊 Historial de Lecturas</h2>
-      <p>Registros almacenados automáticamente desde el sistema.</p>
-
-      <div class="tabla-container">
-        <table id="tablaLecturas">
-          <thead>
-            <tr>
-              <th>Fecha y Hora</th>
-              <th>Temperatura (°C)</th>
-              <th>Humedad (%)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td colspan="3">Cargando datos...</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="grafico-container">
-        <canvas id="graficoHistorial"></canvas>
-      </div>
-
-    </section>
-  </main>
-
-  <footer>
-    <p>© 2025 Orquídea Smart | Proyecto Integración de Competencias II</p>
-  </footer>
-
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <script src="js/historial.js"></script>
+
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+    th { background: #2e8b57; color: white; }
+    .btn-volver {
+      display: inline-block;
+      padding: 10px;
+      background: #444;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+    }
+    .btn-volver:hover { background: #222; }
+  </style>
 </body>
 </html>

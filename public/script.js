@@ -1,35 +1,54 @@
+// ===============================
+//   CARGAR HISTORIAL DESDE DB
+// ===============================
 async function cargarHistorial() {
-  const res = await fetch("http://localhost:3000/api/registros");
-  const data = await res.json();
+  try {
+    const res = await fetch("http://localhost:3000/api/registros");
+    const data = await res.json();
 
-  const tabla = document.getElementById("tabla-historial");
-  tabla.innerHTML = "";
+    const tabla = document.getElementById("tabla-historial");
+    tabla.innerHTML = "";
 
-  data.forEach(r => {
-    const fila = document.createElement("tr");
-    fila.innerHTML = `
-      <td>${r.id}</td>
-      <td>${r.temperatura} °C</td>
-      <td>${r.humedad} %</td>
-      <td>${r.fecha_hora}</td>
-    `;
-    tabla.appendChild(fila);
-  });
+    data.forEach(r => {
+      const fila = document.createElement("tr");
+      fila.innerHTML = `
+        <td>${r.id}</td>
+        <td>${r.temperatura} °C</td>
+        <td>${r.humedad} %</td>
+        <td>${r.luz} lx</td>
+        <td>${r.fecha}</td>
+      `;
+      tabla.appendChild(fila);
+    });
+
+  } catch (error) {
+    console.error("❌ Error cargando historial:", error);
+  }
 }
 
-// Simulación de envío automático cada 50 segundos
-setInterval(async () => {
-  const temp = (20 + Math.random() * 5).toFixed(2);
-  const hum = (60 + Math.random() * 10).toFixed(2);
+// ===============================
+//   RECIBIR DATOS EN TIEMPO REAL
+// ===============================
+const socket = io();
 
-  await fetch("http://localhost:3000/api/guardar", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ temperatura: temp, humedad: hum })
-  });
+socket.on("datos", (data) => {
+  document.getElementById("temperatura").textContent = data.temperatura + " °C";
+  document.getElementById("humedad").textContent = data.humedad + " %";
+});
 
-  console.log(`🌡️ Enviado: ${temp} °C | 💧 ${hum} %`);
-  cargarHistorial();
-}, 50000);
+// ===============================
+//   BOTÓN DE RIEGO
+// ===============================
+document.getElementById("btnRegar").addEventListener("click", async () => {
+  try {
+    await fetch("http://localhost:3000/regar", { method: "POST" });
+    alert("💧 Riego activado");
 
+    cargarHistorial(); // refrescar historial
+  } catch (e) {
+    console.error("❌ Error activando riego:", e);
+  }
+});
+
+// Cargar historial al abrir
 cargarHistorial();

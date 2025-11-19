@@ -8,21 +8,19 @@
 </head>
 <body>
 
-  <!-- === ENCABEZADO === -->
   <header>
     <h1>📅 Calendario de Riego</h1>
     <nav>
-      <a href="index.html">Volver al Inicio</a>
+      <a href="index.html">Inicio</a>
+      <a href="historial.html">Historial</a>
     </nav>
   </header>
 
-  <!-- === SECCIÓN PRINCIPAL === -->
   <main>
     <section class="panel">
       <h2>Programar un nuevo riego</h2>
-      <p>Selecciona la fecha, hora y el método de notificación para recibir recordatorios de riego.</p>
+      <p>Selecciona la fecha, hora y método de notificación.</p>
 
-      <!-- Formulario de programación -->
       <form id="formRiego">
         <label for="fecha">Fecha de riego:</label>
         <input type="date" id="fecha" required>
@@ -30,16 +28,15 @@
         <label for="hora">Hora de riego:</label>
         <input type="time" id="hora" required>
 
-        <label for="correo">Correo electrónico (opcional):</label>
+        <label for="correo">Correo (opcional):</label>
         <input type="email" id="correo" placeholder="ejemplo@correo.com">
 
-        <label for="telefono">Teléfono (opcional, formato internacional):</label>
+        <label for="telefono">Teléfono (opcional):</label>
         <input type="tel" id="telefono" placeholder="+569XXXXXXXX">
 
         <button type="submit">💧 Guardar riego</button>
       </form>
 
-      <!-- Lista de riegos programados -->
       <div id="listaRiegos">
         <h3>Riegos Programados</h3>
         <p>No hay riegos registrados aún.</p>
@@ -47,12 +44,10 @@
     </section>
   </main>
 
-  <!-- === PIE DE PÁGINA === -->
   <footer>
     <p>© 2025 Orquídea Smart | Proyecto Integración de Competencias II</p>
   </footer>
 
-  <!-- Scripts -->
   <script src="js/observer.js"></script>
   <script src="js/main.js"></script>
 </body>
